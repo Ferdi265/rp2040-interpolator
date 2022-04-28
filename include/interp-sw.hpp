@@ -47,7 +47,7 @@ void InterpSW<N>::update() {
 
     uint32_t addresult0 = base[0] + (ctrl0.add_raw ? input0 : result0);
     uint32_t addresult1 = base[1] + (ctrl1.add_raw ? input1 : result1);
-    uint32_t addresult2 = base[2] + result0 + result1;
+    uint32_t addresult2 = base[2] + result0 + (do_blend ? 0 : result1);
 
     auto s32 = sext<int32_t>;
     uint32_t uclamp0 = result0 < base[0] ? base[0] : (result0 > base[1] ? base[1] : result0);
@@ -65,7 +65,7 @@ void InterpSW<N>::update() {
     smresult[1] = result1;
     result[0] = do_blend ? alpha1 : (do_clamp ? clamp0 : addresult0) | (ctrl0.force_msb << 28);
     result[1] = (do_blend ? blend1 : addresult1) | (ctrl1.force_msb << 28);
-    result[2] = do_blend ? base[2] + result0 : addresult2;
+    result[2] = addresult2;
 
     ctrl0.overf0 = overf0;
     ctrl0.overf1 = overf1;
