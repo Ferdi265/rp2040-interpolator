@@ -63,6 +63,9 @@ INTERP_BASE:
                                                                                                                 +------------+                                            
 ```
 
+Note: each Interpolator only has either a CLAMP or a BLEND unit. This diagram
+shows both to avoid needing to draw 2 diagrams.
+
 ## C++ Library
 
 The `CMakeLists.txt` defines a header-only library `rp2040-interp` with main
