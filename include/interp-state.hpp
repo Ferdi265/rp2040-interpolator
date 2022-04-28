@@ -1,5 +1,5 @@
-#ifndef YRLF_INTERP_IMPL_HPP_
-#define YRLF_INTERP_IMPL_HPP_
+#ifndef YRLF_INTERP_STATE_HPP_
+#define YRLF_INTERP_STATE_HPP_
 
 #ifndef YRLF_INTERP_H_
 #include "interp.h"

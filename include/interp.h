@@ -141,8 +141,8 @@ using Interp0 = InterpSW0;
 using Interp1 = InterpSW1;
 #endif
 
-#ifndef YRLF_INTERP_IMPL_HPP_
-#include "interp-impl.hpp"
+#ifndef YRLF_INTERP_STATE_HPP_
+#include "interp-state.hpp"
 #endif
 
 #ifndef YRLF_INTERP_SW_HPP_
