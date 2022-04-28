@@ -90,13 +90,15 @@ void InterpSW<N>::writebase01(uint32_t v) {
     InterpCtrl ctrl0 = InterpCtrl::from(ctrl[0]);
     InterpCtrl ctrl1 = InterpCtrl::from(ctrl[1]);
 
+    bool do_blend = (ctrl0.blend && N == 0);
+
     uint16_t input0 = v;
     uint16_t input1 = v >> 16;
 
     uint32_t sextmask0 = (input0 & (1 << 15)) ? (-1U << 15) : 0;
     uint32_t sextmask1 = (input1 & (1 << 15)) ? (-1U << 15) : 0;
 
-    uint32_t base0 = ctrl0.is_signed ? input0 | sextmask0 : input0;
+    uint32_t base0 = (do_blend ? ctrl1.is_signed : ctrl0.is_signed) ? input0 | sextmask0 : input0;
     uint32_t base1 = ctrl1.is_signed ? input1 | sextmask1 : input1;
 
     base[0] = base0;
