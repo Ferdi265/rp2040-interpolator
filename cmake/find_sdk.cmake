@@ -1,0 +1,7 @@
+if(NOT DEFINED PICO_SDK_PATH)
+    if(EXISTS "${REPO_SOURCE_DIR}/../pico-sdk")
+        set(PICO_SDK_PATH "${REPO_SOURCE_DIR}/../pico-sdk")
+    else()
+        message(WARNING "could not find PICO SDK")
+    endif()
+endif()
