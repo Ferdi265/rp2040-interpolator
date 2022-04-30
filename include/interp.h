@@ -134,9 +134,13 @@ using InterpHW1 = InterpHW<1>;
 #endif
 
 #ifdef HAVE_RP2040_HARDWARE_INTERP
+template <size_t N = 0>
+using Interp = InterpHW<N>;
 using Interp0 = InterpHW0;
 using Interp1 = InterpHW1;
 #else
+template <size_t N = 0>
+using Interp = InterpSW<N>;
 using Interp0 = InterpSW0;
 using Interp1 = InterpSW1;
 #endif
