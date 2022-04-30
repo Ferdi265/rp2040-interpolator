@@ -17,8 +17,10 @@ void InterpTester<Interp>::write_state(interp_num_t n, const InterpState& state)
 template <template <size_t N> typename Interp>
 void InterpTester<Interp>::dump_state(interp_num_t n, InterpState& state) {
     if (n == 0) {
+        intrp0.update();
         state = intrp0;
     } else if (n == 1) {
+        intrp1.update();
         state = intrp1;
     }
 }
@@ -51,6 +53,7 @@ void InterpTester<Interp>::write_reg(interp_num_t n, InterpReg reg, uint32_t val
 
 template <typename Interp>
 static void do_read_reg(Interp& intrp, InterpReg reg, uint32_t& value) {
+    intrp.update();
     switch (reg) {
         case InterpReg::ACCUM0: value = intrp.accum[0]; break;
         case InterpReg::ACCUM1: value = intrp.accum[1]; break;
