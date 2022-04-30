@@ -83,3 +83,6 @@ TODO: more documentation
 
 A suite of tests vectors generated from real hardware will be added to this
 repo soon-ish.
+
+The `tests/` folder contains a WIP test framework for generating and checking
+test vectors.
