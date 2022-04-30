@@ -37,7 +37,7 @@ void InterpState::restore(InterpSW<M>& sw) const {
     sw.smresult[1] = peekraw[1];
 }
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template <size_t M>
 void InterpState::save(InterpHW<M>& hw) {
     ctrl[0] = hw.ctrl[0];

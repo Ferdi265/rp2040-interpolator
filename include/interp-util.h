@@ -36,7 +36,7 @@ constexpr zext_t<T> zext{};
 template <typename T>
 constexpr sext_t<T> sext{};
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template <typename T, size_t addr>
 struct reg_proxy {
     using ptr_type = T*;

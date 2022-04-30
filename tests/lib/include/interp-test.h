@@ -48,7 +48,7 @@ struct InterpTester : InterpTesterBase {
 };
 
 using InterpSWTester = InterpTester<InterpSW>;
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 using InterpHWTester = InterpTester<InterpHW>;
 #endif
 

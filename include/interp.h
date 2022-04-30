@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include "interp-util.h"
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 #include "hardware/interp.h"
 #endif
 
@@ -32,7 +32,7 @@ struct InterpCtrl {
 template <size_t N>
 struct InterpSW;
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template <size_t N>
 struct InterpHW;
 #endif
@@ -57,7 +57,7 @@ struct InterpState {
     template <size_t M>
     void restore(InterpSW<M>&) const;
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
     template <size_t M>
     InterpState(InterpHW<M>& interp) { save(interp); }
     template <size_t M>
@@ -101,7 +101,7 @@ private:
 using InterpSW0 = InterpSW<0>;
 using InterpSW1 = InterpSW<1>;
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template <size_t N = 0>
 struct InterpHW {
 private:
@@ -133,7 +133,7 @@ using InterpHW0 = InterpHW<0>;
 using InterpHW1 = InterpHW<1>;
 #endif
 
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template <size_t N = 0>
 using Interp = InterpHW<N>;
 using Interp0 = InterpHW0;

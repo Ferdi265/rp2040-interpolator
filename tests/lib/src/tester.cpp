@@ -1,7 +1,7 @@
 #include "interp-test.h"
 
 template struct InterpTester<InterpSW>;
-#ifdef HAVE_RP2040_HARDWARE_INTERP
+#if RP2040_INTERP_WITH_HARDWARE
 template struct InterpTester<InterpHW>;
 #endif
 

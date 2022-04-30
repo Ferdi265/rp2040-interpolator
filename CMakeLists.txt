@@ -10,7 +10,7 @@ add_library(rp2040-interp INTERFACE)
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 target_include_directories(${PROJECT_NAME} INTERFACE include/)
 if(${RP2040_INTERP_WITH_HARDWARE})
-    target_compile_definitions(${PROJECT_NAME} INTERFACE HAVE_RP2040_HARDWARE_INTERP=1)
+    target_compile_definitions(${PROJECT_NAME} INTERFACE RP2040_INTERP_WITH_HARDWARE=1)
     target_link_libraries(${PROJECT_NAME} INTERFACE hardware_interp)
 endif()
 
