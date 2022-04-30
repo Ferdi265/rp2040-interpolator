@@ -32,12 +32,15 @@ struct line_parser {
         }
 
         line = line.substr(end);
+        while (!line.empty() && line[0] == ' ') {
+            line = line.substr(1);
+        }
     }
 
     bool parse_word(std::string_view& word) {
         if (!peek_word(word)) return false;
 
-        line = line.substr(word.size());
+        pop_word();
         return true;
     }
 
@@ -152,7 +155,7 @@ struct buf_writer {
     size_t length;
     bool first;
 
-    buf_writer(char * buf, size_t n) : buf(buf), length(n), first(false) {
+    buf_writer(char * buf, size_t n) : buf(buf), length(n), first(true) {
         if (n > 0) buf[0] = 0;
     }
 
@@ -160,6 +163,7 @@ struct buf_writer {
     buf_writer(char (&buf)[N]) : buf_writer(buf, N) {}
 
     bool write_str(const char * str, size_t n) {
+        if (str[n - 1] == '\0') n--;
         if (length <= n) return false;
 
         memcpy(buf, str, n);
@@ -178,7 +182,7 @@ struct buf_writer {
     bool write_field(const char * str, size_t n) {
         if (!first && !write_str(" ")) return false;
         if (!write_str(str, n)) return false;
-        first = true;
+        first = false;
         return true;
     }
 
