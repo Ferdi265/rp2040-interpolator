@@ -38,8 +38,8 @@ struct InterpTesterBase {
 
 template <template <size_t N> typename Interp = Interp>
 struct InterpTester : InterpTesterBase {
-    Interp<0> interp0;
-    Interp<1> interp1;
+    Interp<0> intrp0;
+    Interp<1> intrp1;
 
     void write_state(interp_num_t, const InterpState&) override;
     void dump_state(interp_num_t, InterpState&) override;

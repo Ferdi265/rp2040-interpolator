@@ -94,6 +94,7 @@ struct line_parser {
         std::string_view word;
         if (!peek_word(word)) return false;
 
+        num = 0;
         std::from_chars_result result;
         std::string_view hex_prefix = word.substr(0, 2);
         if (hex_prefix == "0x" || hex_prefix == "0X") {
@@ -156,7 +157,7 @@ struct buf_writer {
     }
 
     template <size_t N>
-    buf_writer(char (&buf)[N]) : buf(buf), length(N) {}
+    buf_writer(char (&buf)[N]) : buf_writer(buf, N) {}
 
     bool write_str(const char * str, size_t n) {
         if (length <= n) return false;
