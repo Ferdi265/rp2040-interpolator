@@ -26,14 +26,14 @@ void InterpSW<N>::update() {
     uint32_t input0 = accum[ctrl0.cross_input ? 1 : 0];
     uint32_t input1 = accum[ctrl1.cross_input ? 0 : 1];
 
-    uint32_t mask0 = ((1L << (ctrl0.mask_msb + 1)) - 1) & ~((1L << ctrl0.mask_lsb) - 1);
-    uint32_t mask1 = ((1L << (ctrl1.mask_msb + 1)) - 1) & ~((1L << ctrl1.mask_lsb) - 1);
+    uint32_t mask0 = ((1LL << (ctrl0.mask_msb + 1)) - 1) & ~((1LL << ctrl0.mask_lsb) - 1);
+    uint32_t mask1 = ((1LL << (ctrl1.mask_msb + 1)) - 1) & ~((1LL << ctrl1.mask_lsb) - 1);
 
     uint32_t uresult0 = (input0 >> ctrl0.shift) & mask0;
     uint32_t uresult1 = (input1 >> ctrl1.shift) & mask1;
 
-    bool overf0 = (input0 >> ctrl0.shift) & ~((1L << (ctrl0.mask_msb + 1)) - 1);
-    bool overf1 = (input1 >> ctrl1.shift) & ~((1L << (ctrl1.mask_msb + 1)) - 1);
+    bool overf0 = (input0 >> ctrl0.shift) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
+    bool overf1 = (input1 >> ctrl1.shift) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
     bool overf = overf0 || overf1;
 
     uint32_t sextmask0 = (uresult0 & (1 << ctrl0.mask_msb)) ? (-1U << ctrl0.mask_msb) : 0;
