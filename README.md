@@ -2,6 +2,8 @@
 
 Software Emulation Library for the RP2040 Interpolator peripheral.
 
+Note! The RP2350's Interpolator is almost perfectly compatible with the RP2040, but its behaviour is not identical. The main difference is a right rotate instead of a right shift, as well as broken behaviour of the OVERF flags. See the RP2350 datasheet's Interpolator section and the RP2350-E1 Erratum. This library will be updated to support the RP2350 Interpolator and explain the differences in detail in the future.
+
 ## The Interpolator
 
 The Interpolator is a fun little peripheral integrated into the SIO block in
