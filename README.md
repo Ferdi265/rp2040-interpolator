@@ -2,7 +2,12 @@
 
 Software Emulation Library for the RP2040 Interpolator peripheral.
 
-Note! The RP2350's Interpolator is almost perfectly compatible with the RP2040, but its behaviour is not identical. The main difference is a right rotate instead of a right shift, as well as broken behaviour of the OVERF flags. See the RP2350 datasheet's Interpolator section and the RP2350-E1 Erratum. This library will be updated to support the RP2350 Interpolator and explain the differences in detail in the future.
+Note! The RP2350's Interpolator is almost perfectly compatible with the RP2040,
+but its behaviour is not identical. The main difference is a right rotate
+instead of a right shift, as well as broken behaviour of the OVERF flags. See
+the RP2350 datasheet's Interpolator section and the RP2350-E1 Erratum. This
+library has untested support for the RP2350 Interpolator, verification of the
+implementation will be done soon.
 
 ## The Interpolator
 
@@ -45,7 +50,7 @@ INTERP_BASE:
              | \|                  _ |    /-------------------------------------------------------->|1 \     v    | | |           |  |--> OR --->|0 \        +---------+  
   RESULT0 -->|0 \   +--------+    | \|    |                                                 _ |     |  |--> ADD ----------------->|0 /           |  |------->| RESULT0 |  
              |  |-->| ACCUM0 |--->|0 \    |  +-------------+   +------+     +----------+   | \|  /->|0 /          | | |           |_/    /------>|1 /        +---------+  
-  RESULT1 -->|1 /   +--------+    |  |----+->| Right Shift |-->| Mask |--+--| Sign Ext |-->|1 \  |  |_/           | | |                  |       |_/                      
+  RESULT1 -->|1 /   +--------+    |  |----+->| Right Shift*|-->| Mask |--+--| Sign Ext |-->|1 \  |  |_/           | | |                  |       |_/                      
              |_/      ACCUM1 ---->|1 /       +-------------+   +------+  |  +----------+   |  |--+       +------+ | | |  /---------------/                                
                                   |_/                                    \---------------->|0 /  \------>| RAW0 |-----+--------------------------------\                  
                     +--------+                                                             |_/           +------+ | |    |                             v     +---------+  
@@ -53,7 +58,7 @@ INTERP_BASE:
                     +--------+     _                                                       | \           +------+ | |    |                       | \   ^     +---------+  
               _                   | \                                    /---------------->|0 \  /------>| RAW1 |-----+------------------------->|0 \  |                  
              | \      ACCUM0 ---->|1 \       +-------------+   +------+  |  +----------+   |  |--+   _   +------+ | | |  |                       |  |--/                  
-  RESULT1 -->|0 \   +--------+    |  |----+->| Right Shift |-->| Mask |--+--| Sign Ext |-->|1 /  |  | \           | | |  |         _        0 -->|1 /                     
+  RESULT1 -->|0 \   +--------+    |  |----+->| Right Shift*|-->| Mask |--+--| Sign Ext |-->|1 /  |  | \           | | |  |         _        0 -->|1 /                     
              |  |-->| ACCUM1 |--->|0 /    |  +-------------+   +------+     +----------+   |_/|  \->|0 \          | | |  |        | \            |_/|                     
   RESULT0 -->|1 /   +--------+    |_/|    |                                                   |     |  |--> ADD ----------------->|0 \              |        +---------+  
              |_/|                    |    \-------------------------------------------------------->|1 /     ^    | | |  |        |  |--> OR --------------->| RESULT1 |  
@@ -67,6 +72,10 @@ INTERP_BASE:
 
 Note: each Interpolator only has either a CLAMP or a BLEND unit. This diagram
 shows both to avoid needing to draw 2 diagrams.
+
+Note \*: The RP2350 has a Right Rotate unit here instead of a right shift unit.
+This causes the OVERF flags to be of little use on the RP2350 if a nonzero
+shift amount is used.
 
 ## C++ Library
 
