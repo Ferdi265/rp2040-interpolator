@@ -1,1 +1,1 @@
-from .interp import InterpCtrl, Interp
+from .interp import InterpGeneration, InterpCtrl, Interp

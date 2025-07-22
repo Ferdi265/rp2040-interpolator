@@ -1,5 +1,6 @@
 from typing import List
 from dataclasses import dataclass
+from enum import Enum
 
 ubits = lambda n, b: n & ((1 << b) - 1)
 sbits = lambda n, b: (-1 << (b - 1)) | ubits(n, b) if n & (1 << (b - 1)) else ubits(n, b)
@@ -7,6 +8,10 @@ u8 = lambda n: ubits(n, 8)
 u16 = lambda n: ubits(n, 16)
 u32 = lambda n: ubits(n, 32)
 s32 = lambda n: sbits(n, 32)
+
+class InterpGeneration(Enum):
+    RP2040 = 0
+    RP2350 = 1
 
 @dataclass
 class InterpCtrl:
@@ -23,7 +28,7 @@ class InterpCtrl:
     overf0: bool
     overf1: bool
     overf: bool
-    _reserved0: int
+    _reserved0: int = 0
 
     @staticmethod
     def from_reg(value: int) -> 'InterpCtrl':
@@ -65,6 +70,7 @@ class InterpCtrl:
 @dataclass
 class Interp:
     n: int
+    generation: InterpGeneration
     accum: List[int] # len = 2
     base: List[int]  # len = 3
     ctrl: List[int]  # len = 2
@@ -72,9 +78,10 @@ class Interp:
     _smresult: List[int] # len = 2
     _result: List[int]   # len = 3
 
-    def __init__(self, n: int = 0):
+    def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040):
         assert n in [0, 1], "invalid interpolator index"
         self.n = n
+        self.generation = generation
         self.accum = [0, 0]
         self.base = [0, 0, 0]
         self.ctrl = [0, 0]
@@ -126,11 +133,21 @@ class Interp:
         mask0 = ((1 << (ctrl0.mask_msb + 1)) - 1) & ~((1 << ctrl0.mask_lsb) - 1)
         mask1 = ((1 << (ctrl1.mask_msb + 1)) - 1) & ~((1 << ctrl1.mask_lsb) - 1)
 
-        uresult0 = (input0 >> ctrl0.shift) & mask0
-        uresult1 = (input1 >> ctrl1.shift) & mask1
+        match self.generation:
+            case InterpGeneration.RP2040:
+                uresult0 = (input0 >> ctrl0.shift) & mask0
+                uresult1 = (input1 >> ctrl1.shift) & mask1
+            case InterpGeneration.RP2350:
+                uresult0 = ((input0 >> ctrl0.shift) | (input0 << (32 - ctrl0.shift))) & mask0;
+                uresult1 = ((input1 >> ctrl1.shift) | (input1 << (32 - ctrl1.shift))) & mask1;
 
-        overf0 = bool((input0 >> ctrl0.shift) & ~((1 << (ctrl0.mask_msb + 1)) - 1))
-        overf1 = bool((input1 >> ctrl1.shift) & ~((1 << (ctrl1.mask_msb + 1)) - 1))
+        match self.generation:
+            case InterpGeneration.RP2040:
+                overf0 = bool((input0 >> ctrl0.shift) & ~((1 << (ctrl0.mask_msb + 1)) - 1))
+                overf1 = bool((input1 >> ctrl1.shift) & ~((1 << (ctrl1.mask_msb + 1)) - 1))
+            case InterpGeneration.RP2350:
+                overf0 = bool((input0 >> ctrl0.shift) | (input0 << (32 - ctrl0.shift))) & ~((1 << (ctrl0.mask_msb + 1)) - 1);
+                overf1 = bool((input1 >> ctrl1.shift) | (input1 << (32 - ctrl1.shift))) & ~((1 << (ctrl1.mask_msb + 1)) - 1);
         overf = overf0 or overf1
 
         sextmask0 = (-1 << ctrl0.mask_msb) & ((1 << 32) - 1) if (uresult0 & (1 << ctrl0.mask_msb)) else 0
