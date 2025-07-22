@@ -5,8 +5,8 @@
 #include "interp.h"
 #endif
 
-template <size_t N>
-void InterpSW<N>::update() {
+template <size_t N, InterpGeneration G>
+void InterpSW<N, G>::update() {
     InterpCtrl ctrl0 = InterpCtrl::from(ctrl[0]);
     InterpCtrl ctrl1 = InterpCtrl::from(ctrl[1]);
 
@@ -29,11 +29,31 @@ void InterpSW<N>::update() {
     uint32_t mask0 = ((1LL << (ctrl0.mask_msb + 1)) - 1) & ~((1LL << ctrl0.mask_lsb) - 1);
     uint32_t mask1 = ((1LL << (ctrl1.mask_msb + 1)) - 1) & ~((1LL << ctrl1.mask_lsb) - 1);
 
-    uint32_t uresult0 = (input0 >> ctrl0.shift) & mask0;
-    uint32_t uresult1 = (input1 >> ctrl1.shift) & mask1;
+    uint32_t uresult0;
+    uint32_t uresult1;
+    switch (G) {
+        case InterpGeneration::RP2040:
+            uresult0 = (input0 >> ctrl0.shift) & mask0;
+            uresult1 = (input1 >> ctrl1.shift) & mask1;
+            break;
+        case InterpGeneration::RP2350:
+            uresult0 = ((input0 >> ctrl0.shift) | ((uint64_t)input0 << (32 - ctrl0.shift))) & mask0;
+            uresult1 = ((input1 >> ctrl1.shift) | ((uint64_t)input1 << (32 - ctrl1.shift))) & mask1;
+            break;
+    }
 
-    bool overf0 = (input0 >> ctrl0.shift) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
-    bool overf1 = (input1 >> ctrl1.shift) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
+    bool overf0;
+    bool overf1;
+    switch (G) {
+        case InterpGeneration::RP2040:
+            overf0 = (input0 >> ctrl0.shift) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
+            overf1 = (input1 >> ctrl1.shift) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
+            break;
+        case InterpGeneration::RP2350:
+            overf0 = ((input0 >> ctrl0.shift) | ((uint64_t)input0 << (32 - ctrl0.shift))) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
+            overf1 = ((input1 >> ctrl1.shift) | ((uint64_t)input1 << (32 - ctrl1.shift))) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
+            break;
+    }
     bool overf = overf0 || overf1;
 
     uint32_t sextmask0 = (uresult0 & (1 << ctrl0.mask_msb)) ? (-1U << ctrl0.mask_msb) : 0;
@@ -74,8 +94,8 @@ void InterpSW<N>::update() {
     ctrl[1] = ctrl1.to();
 }
 
-template <size_t N>
-void InterpSW<N>::writeback() {
+template <size_t N, InterpGeneration G>
+void InterpSW<N, G>::writeback() {
     InterpCtrl ctrl0 = InterpCtrl::from(ctrl[0]);
     InterpCtrl ctrl1 = InterpCtrl::from(ctrl[1]);
 
@@ -85,8 +105,8 @@ void InterpSW<N>::writeback() {
     update();
 }
 
-template <size_t N>
-void InterpSW<N>::writebase01(uint32_t v) {
+template <size_t N, InterpGeneration G>
+void InterpSW<N, G>::writebase01(uint32_t v) {
     InterpCtrl ctrl0 = InterpCtrl::from(ctrl[0]);
     InterpCtrl ctrl1 = InterpCtrl::from(ctrl[1]);
 
