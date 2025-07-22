@@ -9,6 +9,16 @@
 #include "hardware/interp.h"
 #endif
 
+enum struct InterpGeneration {
+    RP2040,
+    RP2350,
+#ifdef RP2040_INTERP_GENERATION_RP2350
+    DEFAULT = RP2350,
+#else
+    DEFAULT = RP2040,
+#endif
+};
+
 struct InterpCtrl {
     uint32_t shift : 5;
     uint32_t mask_lsb : 5;
@@ -26,10 +36,10 @@ struct InterpCtrl {
     uint32_t _reserved0 : 6;
 
     static InterpCtrl from(uint32_t v) { return bit_cast<InterpCtrl, uint32_t>(v); }
-    uint32_t to() { return bit_cast<uint32_t, InterpCtrl>(*this); }
+    uint32_t to() const { return bit_cast<uint32_t, InterpCtrl>(*this); }
 };
 
-template <size_t N>
+template <size_t N = 0, InterpGeneration G = InterpGeneration::DEFAULT>
 struct InterpSW;
 
 #if RP2040_INTERP_WITH_HARDWARE
@@ -46,31 +56,31 @@ struct InterpState {
 
     InterpState() = default;
     InterpState(const InterpState&) = default;
-    template <size_t M>
-    InterpState(const InterpSW<M>& interp) { save(interp); }
+    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
+    InterpState(const InterpSW<N, G>& interp) { save(interp); }
     InterpState& operator=(const InterpState&) = default;
-    template <size_t M>
-    InterpState& operator=(const InterpSW<M>& interp) { save(interp); return *this; }
+    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
+    InterpState& operator=(const InterpSW<N, G>& interp) { save(interp); return *this; }
 
-    template <size_t M>
-    void save(const InterpSW<M>&);
-    template <size_t M>
-    void restore(InterpSW<M>&) const;
+    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
+    void save(const InterpSW<N, G>&);
+    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
+    void restore(InterpSW<N, G>&) const;
 
 #if RP2040_INTERP_WITH_HARDWARE
-    template <size_t M>
-    InterpState(InterpHW<M>& interp) { save(interp); }
-    template <size_t M>
-    InterpState& operator=(InterpHW<M>& interp) { save(interp); return *this; }
+    template <size_t N>
+    InterpState(InterpHW<N>& interp) { save(interp); }
+    template <size_t N>
+    InterpState& operator=(InterpHW<N>& interp) { save(interp); return *this; }
 
-    template <size_t M>
-    void save(InterpHW<M>&);
-    template <size_t M>
-    void restore(InterpHW<M>&) const;
+    template <size_t N>
+    void save(InterpHW<N>&);
+    template <size_t N>
+    void restore(InterpHW<N>&) const;
 #endif
 };
 
-template <size_t N = 0>
+template <size_t N, InterpGeneration G>
 struct InterpSW {
 private:
     friend struct InterpState;

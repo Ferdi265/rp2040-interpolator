@@ -5,8 +5,8 @@
 #include "interp.h"
 #endif
 
-template <size_t M>
-void InterpState::save(const InterpSW<M>& sw) {
+template <size_t N, InterpGeneration G>
+void InterpState::save(const InterpSW<N, G>& sw) {
     ctrl[0] = sw.ctrl[0];
     ctrl[1] = sw.ctrl[1];
     accum[0] = sw.accum[0];
@@ -21,8 +21,8 @@ void InterpState::save(const InterpSW<M>& sw) {
     peekraw[1] = sw.smresult[1];
 }
 
-template <size_t M>
-void InterpState::restore(InterpSW<M>& sw) const {
+template <size_t N, InterpGeneration G>
+void InterpState::restore(InterpSW<N, G>& sw) const {
     sw.ctrl[0] = ctrl[0];
     sw.ctrl[1] = ctrl[1];
     sw.accum[0] = accum[0];
@@ -38,8 +38,8 @@ void InterpState::restore(InterpSW<M>& sw) const {
 }
 
 #if RP2040_INTERP_WITH_HARDWARE
-template <size_t M>
-void InterpState::save(InterpHW<M>& hw) {
+template <size_t N>
+void InterpState::save(InterpHW<N>& hw) {
     ctrl[0] = hw.ctrl[0];
     ctrl[1] = hw.ctrl[1];
     accum[0] = hw.accum[0];
@@ -54,8 +54,8 @@ void InterpState::save(InterpHW<M>& hw) {
     peekraw[1] = hw.peekraw(1);
 }
 
-template <size_t M>
-void InterpState::restore(InterpHW<M>& hw) const {
+template <size_t N>
+void InterpState::restore(InterpHW<N>& hw) const {
     hw.ctrl[0] = ctrl[0];
     hw.ctrl[1] = ctrl[1];
     hw.accum[0] = accum[0];
