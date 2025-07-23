@@ -152,7 +152,40 @@ header `include/interp.h`.
 
 The `python/` folder contains the python package `rp2040_interp`.
 
-TODO: more documentation
+- `class InterpGeneration(Enum)`: identifies the Interpolator variant
+  - `RP2040`
+  - `RP2350`
+
+- `class InterpCtrl`: Interpolator lane settings dataclass
+  - `shift: int`
+  - `mask_lsb: int`
+  - `mask_msb: int`
+  - `is_signed: bool`
+  - `cross_input: bool`
+  - `cross_result: bool`
+  - `add_raw: bool`
+  - `force_msb: int`
+  - `blend: bool`
+  - `clamp: bool`
+  - `overf0: bool`
+  - `overf1: bool`
+  - `overf: bool`
+  - `def from_reg(value: int) -> InterpCtrl`: convert from packed form
+  - `def to_reg(self) -> int`: convert to packed form
+
+- `class Interp`: Software Simulation of an Interpolator
+  - `def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040)`: constructor
+    - n must be 0 or 1 and describes which interpolator instance is used
+    - generation must be a variant of InterpGeneration and describes which generation of Interpolator is simulated
+  - `accum: List[int] # len = 2`
+  - `base: List[int]  # len = 3`
+  - `ctrl: List[int]  # len = 2`
+  - `def pop(i: int) -> int`: simulate read from `POP_LANE0` (i=0), `POP_LANE1` (i=1), or `POP_FULL` (i=2) registers
+  - `def peek(i: int) -> int`: simulate read from `PEEK_LANE0` (i=0), `PEEK_LANE1` (i=1), or `PEEK_FULL` (i=2) registers
+  - `def peekraw(i: int) -> int`: simulate read from `ACCUM0_ADD` (i=0) or `ACCUM1_ADD` (i=1) registers
+  - `def add(i: int, v: int)`: simulate write to `ACCUM0_ADD` (i=0) or `ACCUM1_ADD` (i=1) registers
+  - `def base01(v: int)`: simulate write to `BASE_1AND0` registers
+  - `def update()`: update result (automatically called internally)
 
 ## Testing
 
