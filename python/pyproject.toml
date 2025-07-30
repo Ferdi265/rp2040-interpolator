@@ -1,0 +1,22 @@
+[build-system]
+requires            = ["setuptools>=61.0"]
+build-backend       = "setuptools.build_meta"
+
+[project]
+name                = "rp2040_interp"
+version             = "0.1.0"
+dynamic             = ["readme"]
+authors             = [{ name = "Ferdinand Bachmann", email = "ferdinand.bachmann@yrlf.at" }]
+description         = "Software Emulation Library for the RP2040 Interpolator peripheral"
+requires-python     = ">=3.5"
+classifiers         = [
+    "Programming Language :: Python :: 3",
+]
+dependencies        = []
+
+[project.urls]
+"Homepage"          = "https://github.com/Ferdi265/rp2040-interpolator"
+"Bug Tracker"       = "https://github.com/Ferdi265/rp2040-interpolator/issues"
+
+[tool.setuptools.dynamic]
+readme              = { file = ["README.md"], content-type = "text/markdown" }
