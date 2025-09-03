@@ -39,8 +39,8 @@ constexpr sext_t<T> sext{};
 #if RP2040_INTERP_WITH_HARDWARE
 template <typename T, size_t addr>
 struct reg_proxy {
-    using ptr_type = T*;
-    using ref_type = T&;
+    using ptr_type = volatile T*;
+    using ref_type = volatile T&;
     constexpr ref_type get() { return *(ptr_type)addr; }
     constexpr operator ref_type() { return get(); }
 };
