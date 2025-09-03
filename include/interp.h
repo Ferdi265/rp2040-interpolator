@@ -67,6 +67,8 @@ struct InterpState {
     template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
     void restore(InterpSW<N, G>&) const;
 
+    friend bool operator<=>(InterpState, InterpState) = default;
+
 #if RP2040_INTERP_WITH_HARDWARE
     template <size_t N>
     InterpState(InterpHW<N>& interp) { save(interp); }

@@ -233,26 +233,6 @@ struct buf_writer {
     }
 };
 
-bool operator==(const InterpState& state, const InterpState& expected) {
-    if (state.accum[0] != expected.accum[0]) return false;
-    if (state.accum[1] != expected.accum[1]) return false;
-    if (state.base[0] != expected.base[0]) return false;
-    if (state.base[1] != expected.base[1]) return false;
-    if (state.base[2] != expected.base[2]) return false;
-    if (state.ctrl[0] != expected.ctrl[0]) return false;
-    if (state.ctrl[1] != expected.ctrl[1]) return false;
-    if (state.peek[0] != expected.peek[0]) return false;
-    if (state.peek[1] != expected.peek[1]) return false;
-    if (state.peek[2] != expected.peek[2]) return false;
-    if (state.peekraw[0] != expected.peekraw[0]) return false;
-    if (state.peekraw[1] != expected.peekraw[1]) return false;
-    return true;
-}
-
-bool operator!=(const InterpState& state, const InterpState& expected) {
-    return !(state == expected);
-}
-
 constexpr static std::string_view fail_str = "fatal 'failed to write result'";
 static char result_buffer[512];
 
