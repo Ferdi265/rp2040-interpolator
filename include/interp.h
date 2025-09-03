@@ -98,7 +98,7 @@ public:
     void base01(uint32_t v) { writebase01(v); }
     void update();
 
-    InterpSW& operator=(const InterpState& state) { state.restore(*this); return *this; }
+    InterpSW& operator=(const InterpState& state) { state.restore(*this); update(); return *this; }
 
 private:
     void writeback();
