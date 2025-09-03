@@ -8,7 +8,7 @@ option(RP2040_INTERP_GENERATION_RP2350 "default to RP2350 interpolator generatio
 option(RP2040_INTERP_WITH_TESTS "use common test library" OFF)
 
 add_library(rp2040-interp INTERFACE)
-set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 23)
 target_include_directories(${PROJECT_NAME} INTERFACE include/)
 if(${RP2040_INTERP_WITH_HARDWARE})
     target_compile_definitions(${PROJECT_NAME} INTERFACE RP2040_INTERP_WITH_HARDWARE=1)
