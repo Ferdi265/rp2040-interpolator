@@ -82,3 +82,45 @@ void InterpTester<Interp>::read_reg(interp_num_t n, InterpReg reg, uint32_t& val
         do_read_reg(intrp1, reg, value);
     }
 }
+
+#if RP2040_INTERP_WITH_HARDWARE
+void InterpDualTester::write_state(interp_num_t n, const InterpState& state) {
+    sw.write_state(n, state);
+    hw.write_state(n, state);
+}
+
+void InterpDualTester::dump_state(interp_num_t n, InterpState& state) {
+    InterpState sw_state, hw_state;
+    sw.dump_state(n, sw_state);
+    hw.dump_state(n, hw_state);
+
+    if (sw_state != hw_state) {
+        throw InterpDualTestStateFailure(n, sw_state, hw_state);
+    }
+
+    state = sw_state;
+}
+
+void InterpDualTester::write_reg(interp_num_t n, InterpReg r, uint32_t v) {
+    sw.write_reg(n, r, v);
+    hw.write_reg(n, r, v);
+
+    InterpState state;
+    dump_state(n, state);
+}
+
+void InterpDualTester::read_reg(interp_num_t n, InterpReg r, uint32_t& v) {
+    uint32_t sw_v, hw_v;
+    sw.read_reg(n, r, sw_v);
+    hw.read_reg(n, r, hw_v);
+
+    InterpState state;
+    dump_state(n, state);
+
+    if (sw_v != hw_v) {
+        throw InterpDualTestValueFailure(n, sw_v, hw_v);
+    }
+
+    v = sw_v;
+}
+#endif
