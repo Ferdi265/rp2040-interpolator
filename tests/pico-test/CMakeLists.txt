@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_COLOR_DIAGNOSTICS ON)
 
 # set include paths
 set(REPO_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../")
@@ -27,7 +28,7 @@ foreach(type sw hw)
     set(target ${PROJECT_NAME}-${type})
 
     add_executable(${target} ${sources})
-    set_property(TARGET ${target} PROPERTY CXX_STANDARD 17)
+    set_property(TARGET ${target} PROPERTY CXX_STANDARD 23)
     target_compile_options(${target} PUBLIC -Wall -Wextra)
     target_link_libraries(${target} pico_stdlib rp2040-interp-test)
     pico_add_extra_outputs(${target})
