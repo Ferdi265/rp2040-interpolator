@@ -1,6 +1,9 @@
+from __future__ import annotations
 from typing import List
 from dataclasses import dataclass
 from enum import Enum
+from copy import copy, deepcopy
+from random import randint
 
 ubits = lambda n, b: n & ((1 << b) - 1)
 sbits = lambda n, b: (-1 << (b - 1)) | ubits(n, b) if n & (1 << (b - 1)) else ubits(n, b)
@@ -65,6 +68,66 @@ class InterpCtrl:
             ((self.overf1       & 1)        << 24) |
             ((self.overf        & 1)        << 25) |
             ((self._reserved0   & 0b111111) << 26)
+        )
+
+@dataclass
+class InterpState:
+    accum: List[int] # len = 2
+    base: List[int]  # len = 3
+    ctrl: List[int]  # len = 2
+    peek: List[int]   # len = 3
+    peekraw: List[int] # len = 2
+
+    @staticmethod
+    def random() -> InterpState:
+        rand32 = lambda: randint(0, 2**32-1)
+        return InterpState(
+            accum = [rand32(), rand32()],
+            base = [rand32(), rand32(), rand32()],
+            ctrl = [rand32(), rand32()],
+            peek = [rand32(), rand32(), rand32()],
+            peekraw = [rand32(), rand32()],
+        )
+
+    def __xor__(self, other: InterpState | any) -> InterpState:
+        if not isinstance(other, InterpState):
+            return NotImplemented
+
+        diff = deepcopy(self)
+        diff.accum[0] ^= other.accum[0]
+        diff.accum[1] ^= other.accum[1]
+        diff.base[0] ^= other.base[0]
+        diff.base[1] ^= other.base[1]
+        diff.base[2] ^= other.base[2]
+        diff.ctrl[0] ^= other.ctrl[0]
+        diff.ctrl[1] ^= other.ctrl[1]
+        diff.peek[0] ^= other.peek[0]
+        diff.peek[1] ^= other.peek[1]
+        diff.peek[2] ^= other.peek[2]
+        diff.peekraw[0] ^= other.peekraw[0]
+        diff.peekraw[1] ^= other.peekraw[1]
+        return diff
+
+    def __bool__(self) -> bool:
+        """
+        Returns True if all values of the state are 0
+        (e.g. the result of an xor of two identical states)
+        """
+        for value in (self.accum + self.base + self.ctrl + self.peek + self.peekraw):
+            if value != 0:
+                return False
+
+        return True
+
+    def __repr__(self) -> str:
+        return (
+            "InterpState("
+            f"accum=[{self.accum[0]:#x}, {self.accum[1]:#x}], "
+            f"base=[{self.base[0]:#x}, {self.base[1]:#x}, {self.base[2]:#x}], "
+            f"ctrl=[{self.ctrl[0]:#x}, {self.ctrl[1]:#x}], "
+            f"peek=[{self.peek[0]:#x}, {self.peek[1]:#x}, {self.peek[2]:#x}], "
+            f"peekraw=[{self.peekraw[0]:#x}, {self.peekraw[1]:#x}]"
+            ")"
         )
 
 @dataclass
@@ -221,3 +284,19 @@ class Interp:
         self.base[2]  = u32(self.base[2])
         self.ctrl[0]  = u32(self.ctrl[0])
         self.ctrl[1]  = u32(self.ctrl[1])
+
+    def save(self) -> InterpState:
+        self.update()
+        return InterpState(
+            accum = copy(self.accum),
+            base = copy(self.base),
+            ctrl = copy(self.ctrl),
+            peek = [self._result[0], self._result[1], self._result[2]],
+            peekraw = [self._smresult[0], self._smresult[1]]
+        )
+
+    def restore(self, state: InterpState):
+        self.accum = copy(state.accum)
+        self.base = copy(state.base)
+        self.ctrl = copy(state.ctrl)
+        self.update()
