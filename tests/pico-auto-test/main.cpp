@@ -128,7 +128,7 @@ int main() {
     } catch (const InterpDualTestStateFailure& e) {
         std::println("{}: n={}, sw={} hw={}", e.what(), int(e.n), e.sw_state, e.hw_state);
     } catch (const InterpDualTestValueFailure& e) {
-        std::println("{}: n={}, sw={:#x} hw={:#x}", e.what(), int(e.n), e.sw_value, e.hw_value);
+        std::println("{}: n={}, state={}, sw={:#x} hw={:#x}", e.what(), int(e.n), e.state, e.sw_value, e.hw_value);
     }
 
     while (true) {}

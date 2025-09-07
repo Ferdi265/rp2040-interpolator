@@ -110,6 +110,9 @@ void InterpDualTester::write_reg(interp_num_t n, InterpReg r, uint32_t v) {
 }
 
 void InterpDualTester::read_reg(interp_num_t n, InterpReg r, uint32_t& v) {
+    InterpState before_state;
+    sw.dump_state(n, before_state);
+
     uint32_t sw_v, hw_v;
     sw.read_reg(n, r, sw_v);
     hw.read_reg(n, r, hw_v);
@@ -118,7 +121,7 @@ void InterpDualTester::read_reg(interp_num_t n, InterpReg r, uint32_t& v) {
     dump_state(n, state);
 
     if (sw_v != hw_v) {
-        throw InterpDualTestValueFailure(n, sw_v, hw_v);
+        throw InterpDualTestValueFailure(n, before_state, sw_v, hw_v);
     }
 
     v = sw_v;

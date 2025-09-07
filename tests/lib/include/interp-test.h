@@ -72,10 +72,11 @@ struct InterpDualTestStateFailure : InterpDualTestFailure {
 };
 struct InterpDualTestValueFailure : InterpDualTestFailure {
     interp_num_t n;
+    InterpState state;
     uint32_t sw_value;
     uint32_t hw_value;
 
-    InterpDualTestValueFailure(interp_num_t n, uint32_t sw, uint32_t hw) : InterpDualTestFailure("InterpDualTest value failure"), n(n), sw_value(sw), hw_value(hw) {}
+    InterpDualTestValueFailure(interp_num_t n, const InterpState& state, uint32_t sw, uint32_t hw) : InterpDualTestFailure("InterpDualTest value failure"), n(n), state(state), sw_value(sw), hw_value(hw) {}
 };
 #endif
 
