@@ -56,8 +56,8 @@ void InterpSW<N, G>::update() {
     }
     bool overf = overf0 || overf1;
 
-    uint32_t sextmask0 = (uresult0 & (1 << ctrl0.mask_msb)) ? (-1U << ctrl0.mask_msb) : 0;
-    uint32_t sextmask1 = (uresult1 & (1 << ctrl1.mask_msb)) ? (-1U << ctrl1.mask_msb) : 0;
+    uint32_t sextmask0 = ((input0 >> ctrl0.shift) & (1 << ctrl0.mask_msb)) ? (-1U << (ctrl0.mask_msb + 1)) : 0;
+    uint32_t sextmask1 = ((input1 >> ctrl1.shift) & (1 << ctrl1.mask_msb)) ? (-1U << (ctrl1.mask_msb + 1)) : 0;
 
     uint32_t sresult0 = uresult0 | sextmask0;
     uint32_t sresult1 = uresult1 | sextmask1;
