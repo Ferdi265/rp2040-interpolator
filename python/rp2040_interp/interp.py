@@ -152,6 +152,18 @@ class Interp:
         self._result = [0, 0, 0]
         self.update()
 
+    def set_accum(self, i: int, v: int):
+        self.accum[i] = v
+        self.update()
+
+    def set_base(self, i: int, v: int):
+        self.base[i] = v
+        self.update()
+
+    def set_ctrl(self, i: int, v: int):
+        self.ctrl[i] = v
+        self.update()
+
     def pop(self, i: int) -> int:
         self.update()
         v = self._result[i]
