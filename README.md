@@ -6,14 +6,15 @@ Note! The RP2350's Interpolator is almost perfectly compatible with the RP2040,
 but its behaviour is not identical. The main difference is a right rotate
 instead of a right shift, as well as broken behaviour of the OVERF flags. See
 the RP2350 datasheet's Interpolator section and the RP2350-E1 Erratum. This
-library has untested support for the RP2350 Interpolator, verification of the
-implementation will be done soon.
+library was tested on both RP2040 and RP2350 and has bitwise correct results
+for all tested cases. A list of standalone test vectors generated from RP2040
+and RP2350 hardware will be provided soon.
 
 ## The Interpolator
 
 The Interpolator is a fun little peripheral integrated into the SIO block in
-the RP2040. It's only accessible from the CPU, but can do some useful
-calculations when you want to calculate indices into tables, textures,
+the RP2040 and RP2350. It's only accessible from the CPU, but can do some
+useful calculations when you want to calculate indices into tables, textures,
 interpolate or clamp values, or maybe do some SNES MODE7-style graphics.
 
 Each CPU has access to 2 Interpolators with 2 lanes of shift/mask/add hardware
