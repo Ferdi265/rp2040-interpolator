@@ -283,8 +283,8 @@ class Interp:
         overf1 = bool(shift1 & ~((1 << (ctrl1.mask_msb + 1)) - 1))
         overf = overf0 or overf1
 
-        sextmask0 = (-1 << (ctrl0.mask_msb + 1)) & ((1 << 32) - 1) if ((input0 >> ctrl0.shift) & (1 << ctrl0.mask_msb)) else 0
-        sextmask1 = (-1 << (ctrl1.mask_msb + 1)) & ((1 << 32) - 1) if ((input1 >> ctrl1.shift) & (1 << ctrl1.mask_msb)) else 0
+        sextmask0 = (-1 << (ctrl0.mask_msb + 1)) & ((1 << 32) - 1) if (shift0 & (1 << ctrl0.mask_msb)) else 0
+        sextmask1 = (-1 << (ctrl1.mask_msb + 1)) & ((1 << 32) - 1) if (shift1 & (1 << ctrl1.mask_msb)) else 0
 
         sresult0 = uresult0 | sextmask0
         sresult1 = uresult1 | sextmask1
