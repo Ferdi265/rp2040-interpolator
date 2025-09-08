@@ -1,2 +1,3 @@
 build/
 tests/*/build
+tests/*/build-pico2

@@ -21,7 +21,7 @@ include(fix_clangd_includes)
 # load rp2040-interp library
 set(RP2040_INTERP_WITH_HARDWARE ON)
 set(RP2040_INTERP_WITH_TESTS ON)
-if(${PICO_BOARD} STREQUAL pico2)
+if(${PICO_PLATFORM} MATCHES ^rp2350)
     set(RP2040_INTERP_GENERATION_RP2350 ON)
 endif()
 add_subdirectory(${REPO_SOURCE_DIR} rp2040-interp)
