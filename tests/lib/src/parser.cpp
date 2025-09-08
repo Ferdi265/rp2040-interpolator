@@ -290,6 +290,11 @@ std::string_view format_diff_state(const InterpState& state, const InterpState& 
 
 #define OK "ok"
 #define SYNTAX_ERROR(msg) ("syntax '" msg "'")
+#ifdef RP2040_INTERP_GENERATION_RP2350
+#define GENERATION "generation RP2350"
+#else
+#define GENERATION "generation RP2040"
+#endif
 
 std::string_view InterpTesterBase::parse_command(std::string_view cmdline) {
     line_parser parser(cmdline);
@@ -331,6 +336,8 @@ std::string_view InterpTesterBase::parse_command(std::string_view cmdline) {
             read_reg(n, reg, read_value);
             if (value != read_value) return format_diff_reg(value, read_value);
         }
+    } else if (cmd == "generation") {
+        return GENERATION;
     } else {
         return SYNTAX_ERROR("invalid command");
     }
