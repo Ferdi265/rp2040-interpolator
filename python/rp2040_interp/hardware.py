@@ -23,7 +23,7 @@ class InterpHW(Interp):
         self.debug = debug
 
         if generation is None:
-            self.generation = self._send_cmd_generation("generation")
+            self.generation = self._send_cmd_generation("generation 0")
             self.update()
 
     def _send_cmd_raw(self, cmd: str) -> tuple[str, list[int] | str]:
