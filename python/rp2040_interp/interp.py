@@ -270,19 +270,17 @@ class Interp:
 
         match self.generation:
             case InterpGeneration.RP2040:
-                uresult0 = (input0 >> ctrl0.shift) & mask0
-                uresult1 = (input1 >> ctrl1.shift) & mask1
+                shift0 = input0 >> ctrl0.shift
+                shift1 = input1 >> ctrl1.shift
             case InterpGeneration.RP2350:
-                uresult0 = ((input0 >> ctrl0.shift) | (input0 << (32 - ctrl0.shift))) & mask0;
-                uresult1 = ((input1 >> ctrl1.shift) | (input1 << (32 - ctrl1.shift))) & mask1;
+                shift0 = ((input0 >> ctrl0.shift) | (input0 << (32 - ctrl0.shift))) & ((1 << 32) - 1)
+                shift1 = ((input1 >> ctrl1.shift) | (input1 << (32 - ctrl1.shift))) & ((1 << 32) - 1)
 
-        match self.generation:
-            case InterpGeneration.RP2040:
-                overf0 = bool((input0 >> ctrl0.shift) & ~((1 << (ctrl0.mask_msb + 1)) - 1))
-                overf1 = bool((input1 >> ctrl1.shift) & ~((1 << (ctrl1.mask_msb + 1)) - 1))
-            case InterpGeneration.RP2350:
-                overf0 = bool((input0 >> ctrl0.shift) | (input0 << (32 - ctrl0.shift))) & ~((1 << (ctrl0.mask_msb + 1)) - 1);
-                overf1 = bool((input1 >> ctrl1.shift) | (input1 << (32 - ctrl1.shift))) & ~((1 << (ctrl1.mask_msb + 1)) - 1);
+        uresult0 = shift0 & mask0
+        uresult1 = shift1 & mask1
+
+        overf0 = bool(shift0 & ~((1 << (ctrl0.mask_msb + 1)) - 1))
+        overf1 = bool(shift1 & ~((1 << (ctrl1.mask_msb + 1)) - 1))
         overf = overf0 or overf1
 
         sextmask0 = (-1 << (ctrl0.mask_msb + 1)) & ((1 << 32) - 1) if ((input0 >> ctrl0.shift) & (1 << ctrl0.mask_msb)) else 0

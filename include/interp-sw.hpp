@@ -29,35 +29,28 @@ void InterpSW<N, G>::update() {
     uint32_t mask0 = ((1LL << (ctrl0.mask_msb + 1)) - 1) & ~((1LL << ctrl0.mask_lsb) - 1);
     uint32_t mask1 = ((1LL << (ctrl1.mask_msb + 1)) - 1) & ~((1LL << ctrl1.mask_lsb) - 1);
 
-    uint32_t uresult0;
-    uint32_t uresult1;
+    uint32_t shift0;
+    uint32_t shift1;
     switch (G) {
         case InterpGeneration::RP2040:
-            uresult0 = (input0 >> ctrl0.shift) & mask0;
-            uresult1 = (input1 >> ctrl1.shift) & mask1;
+            shift0 = input0 >> ctrl0.shift;
+            shift1 = input1 >> ctrl1.shift;
             break;
         case InterpGeneration::RP2350:
-            uresult0 = ((input0 >> ctrl0.shift) | ((uint64_t)input0 << (32 - ctrl0.shift))) & mask0;
-            uresult1 = ((input1 >> ctrl1.shift) | ((uint64_t)input1 << (32 - ctrl1.shift))) & mask1;
+            shift0 = (input0 >> ctrl0.shift) | ((uint64_t)input0 << (32 - ctrl0.shift));
+            shift1 = (input1 >> ctrl1.shift) | ((uint64_t)input1 << (32 - ctrl1.shift));
             break;
     }
 
-    bool overf0;
-    bool overf1;
-    switch (G) {
-        case InterpGeneration::RP2040:
-            overf0 = (input0 >> ctrl0.shift) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
-            overf1 = (input1 >> ctrl1.shift) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
-            break;
-        case InterpGeneration::RP2350:
-            overf0 = ((input0 >> ctrl0.shift) | ((uint64_t)input0 << (32 - ctrl0.shift))) & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
-            overf1 = ((input1 >> ctrl1.shift) | ((uint64_t)input1 << (32 - ctrl1.shift))) & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
-            break;
-    }
+    uint32_t uresult0 = shift0 & mask0;
+    uint32_t uresult1 = shift1 & mask1;
+
+    bool overf0 = shift0 & ~((1LL << (ctrl0.mask_msb + 1)) - 1);
+    bool overf1 = shift1 & ~((1LL << (ctrl1.mask_msb + 1)) - 1);
     bool overf = overf0 || overf1;
 
-    uint32_t sextmask0 = ((input0 >> ctrl0.shift) & (1 << ctrl0.mask_msb)) ? (-1U << (ctrl0.mask_msb + 1)) : 0;
-    uint32_t sextmask1 = ((input1 >> ctrl1.shift) & (1 << ctrl1.mask_msb)) ? (-1U << (ctrl1.mask_msb + 1)) : 0;
+    uint32_t sextmask0 = (shift0 & (1 << ctrl0.mask_msb)) ? (-1U << (ctrl0.mask_msb + 1)) : 0;
+    uint32_t sextmask1 = (shift1 & (1 << ctrl1.mask_msb)) ? (-1U << (ctrl1.mask_msb + 1)) : 0;
 
     uint32_t sresult0 = uresult0 | sextmask0;
     uint32_t sresult1 = uresult1 | sextmask1;
