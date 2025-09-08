@@ -70,9 +70,9 @@ static void do_read_reg(Interp& intrp, InterpReg reg, uint32_t& value) {
         case InterpReg::PEEK2: value = intrp.peek(2); break;
         case InterpReg::PEEKRAW0: value = intrp.peekraw(0); break;
         case InterpReg::PEEKRAW1: value = intrp.peekraw(1); break;
-        case InterpReg::ADD0: value = 0; break; // write-only; for reading see PEEKRAW0
-        case InterpReg::ADD1: value = 0; break; // write-only; for reading see PEEKRAW1
-        case InterpReg::BASE01: value = 0; break; // write-only; reading not tested as it is unsupported
+        case InterpReg::ADD0: value = intrp.peekraw(0); break;
+        case InterpReg::ADD1: value = intrp.peekraw(1); break;
+        case InterpReg::BASE01: value = intrp.read_base01(); break;
         default:;
     }
 }

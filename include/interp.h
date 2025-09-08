@@ -98,6 +98,7 @@ public:
     uint32_t peekraw(size_t i) { update(); return smresult[i]; }
     void add(size_t i, uint32_t v) { accum[i] += v; }
     void base01(uint32_t v) { writebase01(v); }
+    uint32_t read_base01() { return 0; }
     void update();
 
     InterpSW& operator=(const InterpState& state) { state.restore(*this); update(); return *this; }
@@ -130,6 +131,7 @@ public:
     uint32_t peekraw(size_t i) { return hw_add[i]; }
     void add(size_t i, uint32_t v) { hw_add[i] = v; }
     void base01(uint32_t v) { hw_base01.get() = v; }
+    uint32_t read_base01() { return hw_base01.get(); }
     void update() {}
 
     InterpHW& operator=(const InterpState& interp) { interp.restore(*this); return *this; }
