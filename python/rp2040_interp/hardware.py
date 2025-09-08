@@ -7,10 +7,17 @@ def _hex_values(values: list[int]) -> str:
     return " ".join(hex(v) for v in values)
 
 class InterpHW(Interp):
+    """
+    Represents a connection to a Raspberry Pi Pico running the pico-test-hw firmware
+    Allows a hardware interpolator to be used from host Python
+    """
     serial: Serial
     debug: bool
 
     def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040, port: Path = Path("/dev/ttyACM0"), debug: bool = False):
+        """
+        Construct a hardware interpolator peripheral proxy
+        """
         super().__init__(n, generation)
         self.serial = Serial(str(port), 115200)
         self.debug = debug
@@ -75,46 +82,75 @@ class InterpHW(Interp):
 
     @override
     def set_accum(self, i: int, v: int):
+        """
+        Set an accumulator register
+        """
         super().set_accum(i, v)
         self._write_reg(f"accum{i}", v)
 
     @override
     def set_base(self, i: int, v: int):
+        """
+        Set a base register and
+        """
         super().set_base(i, v)
         self._write_reg(f"base{i}", v)
 
     @override
     def set_ctrl(self, i: int, v: int):
+        """
+        Set a ctrl register
+        """
         super().set_ctrl(i, v)
         self._write_reg(f"ctrl{i}", v)
 
     @override
     def pop(self, i: int) -> int:
+        """
+        Read a pop register of the interpolator.
+        This changes the interpolator state.
+        """
         super().pop(i)
         return self._read_reg(f"pop{i}")
 
     @override
     def peek(self, i: int) -> int:
+        """
+        Read a peek register of the interpolator.
+        """
         super().peek(i)
         return self._read_reg(f"peek{i}")
 
     @override
     def peekraw(self, i: int) -> int:
+        """
+        Read a raw lane result register of the interpolator.
+        """
         super().peekraw(i)
         return self._read_reg(f"peekraw{i}")
 
     @override
     def add(self, i: int, v: int) -> int:
+        """
+        Add to the accumulator of the interpolator.
+        """
         super().add(i, v)
         return self._write_reg(f"add{i}", v)
 
     @override
     def base01(self, v: int) -> int:
+        """
+        Write to the base01 register of the interpolator.
+        """
         super().base01(i, v)
         return self._write_reg("base01", v)
 
     @override
     def save(self, sw: bool = False) -> InterpState:
+        """
+        Save the interpolator state.
+        Pass sw=True to save the state of the software simulation.
+        """
         sw_state = super().save()
         if sw:
             return sw_state
@@ -123,11 +159,17 @@ class InterpHW(Interp):
 
     @override
     def restore(self, state: InterpState):
+        """
+        Restore the interpolator state
+        """
         super().restore(state)
         self._write_state(state)
 
     @override
     def diff(self) -> InterpState:
+        """
+        Diff the states of the hardware and software interpolators.
+        """
         sw_state = self.save(sw = True)
         hw_state = self.save(sw = False)
         return sw_state ^ hw_state

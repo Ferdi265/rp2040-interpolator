@@ -173,6 +173,17 @@ The `python/` folder contains the python package `rp2040_interp`.
   - `def from_reg(value: int) -> InterpCtrl`: convert from packed form
   - `def to_reg(self) -> int`: convert to packed form
 
+- `class InterpState`: Interpolator state dataclass
+  - `accum: List[int] # len = 2`
+  - `base: List[int]  # len = 3`
+  - `ctrl: List[int]  # len = 2`
+  - `peek: List[int]  # len = 3`
+  - `peekraw: List[int]  # len = 2`
+  - `def random() -> InterpState` (static): generate a random interpolator state
+  - xor operator: compare two interpolator states
+  - bool operator: check if the result of comparing two interpolator states is
+    all zero (i.e. identical states)
+
 - `class Interp`: Software Simulation of an Interpolator
   - `def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040)`: constructor
     - n must be 0 or 1 and describes which interpolator instance is used
@@ -180,12 +191,32 @@ The `python/` folder contains the python package `rp2040_interp`.
   - `accum: List[int] # len = 2`
   - `base: List[int]  # len = 3`
   - `ctrl: List[int]  # len = 2`
+  - `def set_accum(i: int, v: int)`: set an accumulator register and update
+  - `def set_base(i: int, v: int)`: set a base register and update
+  - `def set_ctrl(i: int, v: int)`: set a ctrl register and update
   - `def pop(i: int) -> int`: simulate read from `POP_LANE0` (i=0), `POP_LANE1` (i=1), or `POP_FULL` (i=2) registers
   - `def peek(i: int) -> int`: simulate read from `PEEK_LANE0` (i=0), `PEEK_LANE1` (i=1), or `PEEK_FULL` (i=2) registers
   - `def peekraw(i: int) -> int`: simulate read from `ACCUM0_ADD` (i=0) or `ACCUM1_ADD` (i=1) registers
   - `def add(i: int, v: int)`: simulate write to `ACCUM0_ADD` (i=0) or `ACCUM1_ADD` (i=1) registers
   - `def base01(v: int)`: simulate write to `BASE_1AND0` registers
   - `def update()`: update result (automatically called internally)
+  - `def save() -> InterpState`: save the interpolator state
+  - `def restore(state: InterpState)`: restore the interpolator state
+
+The `rp2040_interp.hardware` package contains an additional class for
+interfacing with a hardware interpolator via the `pico-test-hw` firmare in the
+`test/pico-test/` directory.
+
+- class InterpHW(Interp)`: Proxy to a Hardware Interpolator
+  - `def __init__(self, ..., port: Path = '/dev/ttyACM0', debug: bool = False)`: constructor
+    - the first parameters are identical to `Interp`
+    - path is the path to the tty device to the Raspberry Pi Pico
+    - debug enables printing all serial commands and responses
+  - avoid accessing the `accum`/`base`/`ctrl` arrays directly, since it will
+    only affect the software simulation and not the hardware device, use the
+    `set_...()` methods instead.
+  - see methods of the `Interp` class
+  - `def diff()`: return a diff between the hardware and software interpolator
 
 ## Testing
 

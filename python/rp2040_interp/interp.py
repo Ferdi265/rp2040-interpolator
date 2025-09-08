@@ -13,11 +13,17 @@ u32 = lambda n: ubits(n, 32)
 s32 = lambda n: sbits(n, 32)
 
 class InterpGeneration(Enum):
+    """
+    Describes which generation of Interpolator peripheral is emulated.
+    """
     RP2040 = 0
     RP2350 = 1
 
 @dataclass
 class InterpCtrl:
+    """
+    Describes the CTRL0 and CTRL1 registers of the interpolator.
+    """
     shift: int
     mask_lsb: int
     mask_msb: int
@@ -34,7 +40,10 @@ class InterpCtrl:
     _reserved0: int = 0
 
     @staticmethod
-    def from_reg(value: int) -> 'InterpCtrl':
+    def from_reg(value: int) -> InterpCtrl:
+        """
+        Convert the register representation of a CTRL register to a bit field
+        """
         return InterpCtrl(
             shift        =      (value >>  0) & 0b11111,
             mask_lsb     =      (value >>  5) & 0b11111,
@@ -53,6 +62,9 @@ class InterpCtrl:
         )
 
     def to_reg(self) -> int:
+        """
+        Convert the bit field representation of a CTRL register to a register
+        """
         return (
             ((self.shift        & 0b11111)  <<  0) |
             ((self.mask_lsb     & 0b11111)  <<  5) |
@@ -72,6 +84,9 @@ class InterpCtrl:
 
 @dataclass
 class InterpState:
+    """
+    Represents the state of an interpolator
+    """
     accum: List[int] # len = 2
     base: List[int]  # len = 3
     ctrl: List[int]  # len = 2
@@ -80,6 +95,9 @@ class InterpState:
 
     @staticmethod
     def random() -> InterpState:
+        """
+        Generate a random interpolator state
+        """
         rand32 = lambda: randint(0, 2**32-1)
         return InterpState(
             accum = [rand32(), rand32()],
@@ -90,6 +108,11 @@ class InterpState:
         )
 
     def __xor__(self, other: InterpState | any) -> InterpState:
+        """
+        Compare two interpolator states bitwise
+        Results in a state that is the XOR of both states.
+        When the state is all zero, the states were identical
+        """
         if not isinstance(other, InterpState):
             return NotImplemented
 
@@ -110,8 +133,10 @@ class InterpState:
 
     def __bool__(self) -> bool:
         """
+        Check if the result of (state_a ^ state_b) is all zero,
+        i.e. the states are identical
+
         Returns True if all values of the state are 0
-        (e.g. the result of an xor of two identical states)
         """
         for value in (self.accum + self.base + self.ctrl + self.peek + self.peekraw):
             if value != 0:
@@ -132,6 +157,9 @@ class InterpState:
 
 @dataclass
 class Interp:
+    """
+    Represents an interpolator peripheral
+    """
     n: int
     generation: InterpGeneration
     accum: List[int] # len = 2
@@ -142,6 +170,9 @@ class Interp:
     _result: List[int]   # len = 3
 
     def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040):
+        """
+        Construct a software-simulated interpolator peripheral
+        """
         assert n in [0, 1], "invalid interpolator index"
         self.n = n
         self.generation = generation
@@ -153,38 +184,67 @@ class Interp:
         self.update()
 
     def set_accum(self, i: int, v: int):
+        """
+        Set an accumulator register and update
+        """
         self.accum[i] = v
         self.update()
 
     def set_base(self, i: int, v: int):
+        """
+        Set a base register and update
+        """
         self.base[i] = v
         self.update()
 
     def set_ctrl(self, i: int, v: int):
+        """
+        Set a ctrl register and update
+        """
         self.ctrl[i] = v
         self.update()
 
     def pop(self, i: int) -> int:
+        """
+        Read a pop register of the interpolator.
+        This changes the interpolator state.
+        """
         self.update()
         v = self._result[i]
         self._writeback()
         return v
 
     def peek(self, i: int) -> int:
+        """
+        Read a peek register of the interpolator.
+        """
         self.update()
         return self._result[i]
 
     def peekraw(self, i: int) -> int:
+        """
+        Read a raw lane result register of the interpolator.
+        """
         self.update()
         return self._smresult[i]
 
     def add(self, i: int, value: int):
+        """
+        Add to the accumulator of the interpolator.
+        """
         self.accum[i] += value
+        self.update()
 
     def base01(self, value: int):
+        """
+        Write to the base01 register of the interpolator.
+        """
         self._writebase01(value)
 
     def update(self):
+        """
+        Update the interpolator result
+        """
         self._adjustbits()
         ctrl0 = InterpCtrl.from_reg(self.ctrl[0])
         ctrl1 = InterpCtrl.from_reg(self.ctrl[1])
@@ -298,6 +358,9 @@ class Interp:
         self.ctrl[1]  = u32(self.ctrl[1])
 
     def save(self) -> InterpState:
+        """
+        Save the interpolator state
+        """
         self.update()
         return InterpState(
             accum = copy(self.accum),
@@ -308,6 +371,9 @@ class Interp:
         )
 
     def restore(self, state: InterpState):
+        """
+        Restore the interpolator state
+        """
         self.accum = copy(state.accum)
         self.base = copy(state.base)
         self.ctrl = copy(state.ctrl)
