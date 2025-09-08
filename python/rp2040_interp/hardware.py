@@ -14,15 +14,19 @@ class InterpHW(Interp):
     serial: Serial
     debug: bool
 
-    def __init__(self, n: int = 0, generation: InterpGeneration = InterpGeneration.RP2040, port: Path = Path("/dev/ttyACM0"), debug: bool = False):
+    def __init__(self, n: int = 0, generation: InterpGeneration | None = None, port: Path = Path("/dev/ttyACM0"), debug: bool = False):
         """
         Construct a hardware interpolator peripheral proxy
         """
-        super().__init__(n, generation)
+        super().__init__(n, generation or InterpGeneration.RP2040)
         self.serial = Serial(str(port), 115200)
         self.debug = debug
 
-    def _send_cmd_raw(self, cmd: str) -> tuple[str, list[int]]:
+        if generation is None:
+            self.generation = self._send_cmd_generation("generation")
+            self.update()
+
+    def _send_cmd_raw(self, cmd: str) -> tuple[str, list[int] | str]:
         if self.debug:
             print(f"<< {cmd}")
         self.serial.write(cmd.encode() + b"\n")
@@ -34,6 +38,8 @@ class InterpHW(Interp):
         word, rest = parts[0], ("" if len(parts) == 1 else parts[1])
         if word == "syntax":
             raise SyntaxError(rest)
+        elif word == "generation":
+            return word, rest
 
         if rest == "":
             return word, []
@@ -45,6 +51,16 @@ class InterpHW(Interp):
             raise ValueError(f"expected list of integers, got '{rest}'")
 
         return word, values
+
+    def _send_cmd_generation(self, cmd: str) -> InterpGeneration:
+        word, gen = self._send_cmd_raw(cmd)
+        if word != "generation" and gen not in ("RP2040", "RP2350"):
+            raise ValueError(f"expected 'generation', got '{word} {gen}'")
+
+        if gen == "RP2040":
+            return InterpGeneration.RP2040
+        else:
+            return InterpGeneration.RP2350
 
     def _send_cmd_ok(self, cmd: str):
         word, values = self._send_cmd_raw(cmd)
