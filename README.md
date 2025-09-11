@@ -3,8 +3,8 @@
 Software Emulation Library for the RP2040 Interpolator peripheral.
 
 Note! The RP2350's Interpolator is almost perfectly compatible with the RP2040,
-but its behaviour is not identical. The main difference is a right rotate
-instead of a right shift, as well as broken behaviour of the OVERF flags. See
+but its behaviour is not identical. The only difference is a right rotate
+instead of a right shift (which also makes the OVERF flags break due to checking the value of the top bits regardless of where they came from). See
 the RP2350 datasheet's Interpolator section and the RP2350-E1 Erratum. This
 library was tested on both RP2040 and RP2350 and has bitwise correct results
 for all tested cases. A list of standalone test vectors generated from RP2040
