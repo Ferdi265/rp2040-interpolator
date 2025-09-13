@@ -1,7 +1,7 @@
 #include <cstddef>
 #include <charconv>
 #include <limits>
-#include "interp-test.h"
+#include <interp-test.hpp>
 
 struct line_parser {
     std::string_view line;

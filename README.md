@@ -80,10 +80,10 @@ shift amount is used.
 
 ## C++ Library
 
-The `CMakeLists.txt` defines a header-only library `rp2040-interp` with main
-header `include/interp.h`.
+The `CMakeLists.txt` in the `cpp` directory defines a header-only library
+`rp2040-interp-cpp` with main header `include/interp.hpp`.
 
-### `<interp.h>`
+### `<interp.hpp>`
 
 - `enum InterpGeneration`: identifies the Interpolator variant
   - `RP2040`
@@ -148,6 +148,15 @@ header `include/interp.h`.
 - `Interp<N>`: alias for `InterpSW<N>`, or `InterpHW<N>` when `RP2040_INTERP_WITH_HARDWARE` is set
 - `Interp0`: alias for `Interp<0>`
 - `Interp1`: alias for `Interp<1>`
+
+## C Library
+
+The `CMakeLists.txt` in the `c` directory defines a static library
+`rp2040-interp-c` with main header `include/interp.h`.
+
+### `<interp.h>`
+
+TODO: document
 
 ## Python Library
 

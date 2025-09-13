@@ -16,7 +16,11 @@ extern "C" {
 #define INTERP_SW_GENERATION_RP2040 0
 #define INTERP_SW_GENERATION_RP2350 1
 #ifndef INTERP_SW_GENERATION_DEFAULT
+#ifdef INTERP_SW_GENERATION_DEFAULT_RP2350
+#define INTERP_SW_GENERATION_DEFAULT INTERP_SW_GENERATION_RP2350
+#else
 #define INTERP_SW_GENERATION_DEFAULT INTERP_SW_GENERATION_RP2040
+#endif
 #endif
 // =============================================================================
 

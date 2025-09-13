@@ -1,4 +1,4 @@
-#include "interp-test.h"
+#include <interp-test.hpp>
 
 template struct InterpTester<InterpSW>;
 #if RP2040_INTERP_WITH_HARDWARE

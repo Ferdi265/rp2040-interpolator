@@ -2,7 +2,7 @@
 #define YRLF_INTERP_SW_HPP_
 
 #ifndef YRLF_INTERP_H_
-#include "interp.h"
+#include <interp.hpp>
 #endif
 
 template <size_t N, InterpGeneration G>

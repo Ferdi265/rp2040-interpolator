@@ -3,7 +3,7 @@
 
 #include <string_view>
 #include <stdexcept>
-#include "interp.h"
+#include <interp.hpp>
 
 enum struct InterpReg {
     ACCUM0,

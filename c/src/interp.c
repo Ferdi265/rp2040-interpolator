@@ -1,5 +1,5 @@
-#include "interp.h"
-#include "interp_ctrl.h"
+#include <interp.h>
+#include <interp_ctrl.h>
 
 interp_sw_t interp0_sw = { .index = INTERP_SW_INDEX_BLEND_CAPABLE, .generation = INTERP_SW_GENERATION_DEFAULT };
 interp_sw_t interp1_sw = { .index = INTERP_SW_INDEX_CLAMP_CAPABLE, .generation = INTERP_SW_GENERATION_DEFAULT };

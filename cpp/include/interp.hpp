@@ -3,7 +3,7 @@
 
 #include <stddef.h>
 #include <stdint.h>
-#include "interp-util.h"
+#include <interp-util.hpp>
 
 #if RP2040_INTERP_WITH_HARDWARE
 #include "hardware/interp.h"

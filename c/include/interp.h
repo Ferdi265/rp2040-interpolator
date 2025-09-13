@@ -7,7 +7,7 @@ extern "C" {
 
 #include <stdint.h>
 #include <string.h>
-#include "interp_ctrl.h"
+#include <interp_ctrl.h>
 
 /** \brief Interpolator software definition
  *  \defgroup interp_config interp_config

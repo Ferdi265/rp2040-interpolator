@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <string_view>
-#include "interp-test.h"
+#include <interp-test.hpp>
 
 static char line_buffer[512];
 

@@ -1,9 +1,9 @@
 #include <print>
 #include <format>
-#include "pico/stdio_usb.h"
-#include "pico/rand.h"
-#include "pico/time.h"
-#include "interp-test.h"
+#include <pico/stdio_usb.h>
+#include <pico/rand.h>
+#include <pico/time.h>
+#include <interp-test.hpp>
 
 template <typename Char>
 struct std::formatter<InterpState, Char> {

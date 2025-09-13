@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <string_view>
-#include "pico/stdio_usb.h"
-#include "interp-test.h"
+#include <pico/stdio_usb.h>
+#include <interp-test.hpp>
 
 #ifndef INTERP_TYPE
 #define INTERP_TYPE Interp
