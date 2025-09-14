@@ -1,9 +1,70 @@
 #ifndef YRLF_INTERP_SW_HPP_
 #define YRLF_INTERP_SW_HPP_
 
-#ifndef YRLF_INTERP_H_
+#include <cstddef>
+#include <cstdint>
+
+#ifndef YRLF_INTERP_HPP_
 #include <interp.hpp>
 #endif
+
+template <size_t N = 0, InterpGeneration G = InterpGeneration::DEFAULT>
+struct InterpSW {
+private:
+    static_assert(N == 0 || N == 1, "invalid interpolator index");
+
+public:
+    uint32_t accum[2];
+    uint32_t base[3];
+    uint32_t ctrl[2];
+
+    uint32_t pop(size_t i) { update(); uint32_t v = result[i]; writeback(); return v; }
+    uint32_t peek(size_t i) { update(); return result[i]; }
+    uint32_t peekraw(size_t i) { update(); return smresult[i]; }
+    void add(size_t i, uint32_t v) { accum[i] += v; }
+    void base01(uint32_t v) { writebase01(v); }
+    uint32_t read_base01() { return 0; }
+    void update();
+
+    InterpSW& operator=(const InterpState& state) { restore(state); update(); return *this; }
+    operator InterpState() const { InterpState state; save(state); return state; }
+    void save(InterpState& state) const;
+    void restore(const InterpState& state);
+
+private:
+    void writeback();
+    void writebase01(uint32_t v);
+
+    uint32_t smresult[2];
+    uint32_t result[3];
+};
+
+using InterpSW0 = InterpSW<0>;
+using InterpSW1 = InterpSW<1>;
+
+// --- implementation ---
+
+template <typename T>
+struct zext_t {
+    template <typename U>
+    constexpr std::make_unsigned_t<T> operator()(U u) const {
+        return (std::make_unsigned_t<T>)(std::make_unsigned_t<U>)u;
+    }
+};
+
+template <typename T>
+struct sext_t {
+    template <typename U>
+    constexpr std::make_signed_t<T> operator()(U u) const {
+        return (std::make_signed_t<T>)(std::make_signed_t<U>)u;
+    }
+};
+
+template <typename T>
+constexpr zext_t<T> zext{};
+
+template <typename T>
+constexpr sext_t<T> sext{};
 
 template <size_t N, InterpGeneration G>
 void InterpSW<N, G>::update() {
@@ -118,6 +179,38 @@ void InterpSW<N, G>::writebase01(uint32_t v) {
     base[1] = base1;
 
     update();
+}
+
+template <size_t N, InterpGeneration G>
+void InterpSW<N, G>::save(InterpState& state) const {
+    state.ctrl[0] = ctrl[0];
+    state.ctrl[1] = ctrl[1];
+    state.accum[0] = accum[0];
+    state.accum[1] = accum[1];
+    state.base[0] = base[0];
+    state.base[1] = base[1];
+    state.base[2] = base[2];
+    state.peek[0] = result[0];
+    state.peek[1] = result[1];
+    state.peek[2] = result[2];
+    state.peekraw[0] = smresult[0];
+    state.peekraw[1] = smresult[1];
+}
+
+template <size_t N, InterpGeneration G>
+void InterpSW<N, G>::restore(const InterpState& state) {
+    ctrl[0] = state.ctrl[0];
+    ctrl[1] = state.ctrl[1];
+    accum[0] = state.accum[0];
+    accum[1] = state.accum[1];
+    base[0] = state.base[0];
+    base[1] = state.base[1];
+    base[2] = state.base[2];
+    result[0] = state.peek[0];
+    result[1] = state.peek[1];
+    result[2] = state.peek[2];
+    smresult[0] = state.peekraw[0];
+    smresult[1] = state.peekraw[1];
 }
 
 #endif

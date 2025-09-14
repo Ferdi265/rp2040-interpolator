@@ -1,13 +1,8 @@
-#ifndef YRLF_INTERP_H_
-#define YRLF_INTERP_H_
+#ifndef YRLF_INTERP_HPP_
+#define YRLF_INTERP_HPP_
 
-#include <stddef.h>
-#include <stdint.h>
-#include <interp-util.hpp>
-
-#if RP2040_INTERP_WITH_HARDWARE
-#include "hardware/interp.h"
-#endif
+#include <cstdint>
+#include <bit>
 
 enum struct InterpGeneration {
     RP2040,
@@ -35,17 +30,9 @@ struct InterpCtrl {
     bool overf : 1;
     uint32_t _reserved0 : 6;
 
-    static InterpCtrl from(uint32_t v) { return bit_cast<InterpCtrl, uint32_t>(v); }
-    uint32_t to() const { return bit_cast<uint32_t, InterpCtrl>(*this); }
+    static InterpCtrl from(uint32_t v) { return std::bit_cast<InterpCtrl>(v); }
+    uint32_t to() const { return std::bit_cast<uint32_t>(*this); }
 };
-
-template <size_t N = 0, InterpGeneration G = InterpGeneration::DEFAULT>
-struct InterpSW;
-
-#if RP2040_INTERP_WITH_HARDWARE
-template <size_t N>
-struct InterpHW;
-#endif
 
 struct InterpState {
     uint32_t accum[2];
@@ -56,98 +43,25 @@ struct InterpState {
 
     InterpState() = default;
     InterpState(const InterpState&) = default;
-    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
-    InterpState(const InterpSW<N, G>& interp) { save(interp); }
-    InterpState& operator=(const InterpState&) = default;
-    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
-    InterpState& operator=(const InterpSW<N, G>& interp) { save(interp); return *this; }
-
-    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
-    void save(const InterpSW<N, G>&);
-    template <size_t N, InterpGeneration G = InterpGeneration::DEFAULT>
-    void restore(InterpSW<N, G>&) const;
 
     friend bool operator<=>(InterpState, InterpState) = default;
+};
 
-#if RP2040_INTERP_WITH_HARDWARE
-    template <size_t N>
-    InterpState(InterpHW<N>& interp) { save(interp); }
-    template <size_t N>
-    InterpState& operator=(InterpHW<N>& interp) { save(interp); return *this; }
-
-    template <size_t N>
-    void save(InterpHW<N>&);
-    template <size_t N>
-    void restore(InterpHW<N>&) const;
+#ifndef YRLF_INTERP_SW_HPP_
+#include "interp-sw.hpp"
 #endif
-};
 
-template <size_t N, InterpGeneration G>
-struct InterpSW {
-private:
-    friend struct InterpState;
-    static_assert(N == 0 || N == 1, "invalid interpolator index");
-
-public:
-    uint32_t accum[2];
-    uint32_t base[3];
-    uint32_t ctrl[2];
-
-    uint32_t pop(size_t i) { update(); uint32_t v = result[i]; writeback(); return v; }
-    uint32_t peek(size_t i) { update(); return result[i]; }
-    uint32_t peekraw(size_t i) { update(); return smresult[i]; }
-    void add(size_t i, uint32_t v) { accum[i] += v; }
-    void base01(uint32_t v) { writebase01(v); }
-    uint32_t read_base01() { return 0; }
-    void update();
-
-    InterpSW& operator=(const InterpState& state) { state.restore(*this); update(); return *this; }
-
-private:
-    void writeback();
-    void writebase01(uint32_t v);
-
-    uint32_t smresult[2];
-    uint32_t result[3];
-};
-
-using InterpSW0 = InterpSW<0>;
-using InterpSW1 = InterpSW<1>;
-
-#if RP2040_INTERP_WITH_HARDWARE
-template <size_t N = 0>
-struct InterpHW {
-private:
-    static_assert(N == 0 || N == 1, "invalid interpolator index");
-    constexpr static size_t INTERP_BASE = SIO_BASE + (sizeof (interp_hw_t) * N);
-
-public:
-    reg_proxy<io_rw_32[2], INTERP_BASE + SIO_INTERP0_ACCUM0_OFFSET> accum;
-    reg_proxy<io_rw_32[3], INTERP_BASE + SIO_INTERP0_BASE0_OFFSET> base;
-    reg_proxy<io_rw_32[2], INTERP_BASE + SIO_INTERP0_CTRL_LANE0_OFFSET> ctrl;
-
-    uint32_t pop(size_t i) { return hw_pop[i]; }
-    uint32_t peek(size_t i) { return hw_peek[i]; }
-    uint32_t peekraw(size_t i) { return hw_add[i]; }
-    void add(size_t i, uint32_t v) { hw_add[i] = v; }
-    void base01(uint32_t v) { hw_base01.get() = v; }
-    uint32_t read_base01() { return hw_base01.get(); }
-    void update() {}
-
-    InterpHW& operator=(const InterpState& interp) { interp.restore(*this); return *this; }
-
-private:
-    reg_proxy<io_ro_32[3], INTERP_BASE + SIO_INTERP0_POP_LANE0_OFFSET> hw_pop;
-    reg_proxy<io_ro_32[3], INTERP_BASE + SIO_INTERP0_PEEK_LANE0_OFFSET> hw_peek;
-    reg_proxy<io_rw_32[3], INTERP_BASE + SIO_INTERP0_ACCUM0_ADD_OFFSET> hw_add;
-    reg_proxy<io_wo_32, INTERP_BASE + SIO_INTERP0_BASE_1AND0_OFFSET> hw_base01;
-};
-
-using InterpHW0 = InterpHW<0>;
-using InterpHW1 = InterpHW<1>;
+#if RP2040_INTERP_WITH_C
+#ifndef YRLF_INTERP_SW_C_HPP_
+#include "interp-sw-c.hpp"
+#endif
 #endif
 
 #if RP2040_INTERP_WITH_HARDWARE
+#ifndef YRLF_INTERP_HW_HPP_
+#include "interp-hw.hpp"
+#endif
+
 template <size_t N = 0>
 using Interp = InterpHW<N>;
 using Interp0 = InterpHW0;
@@ -157,14 +71,6 @@ template <size_t N = 0>
 using Interp = InterpSW<N>;
 using Interp0 = InterpSW0;
 using Interp1 = InterpSW1;
-#endif
-
-#ifndef YRLF_INTERP_STATE_HPP_
-#include "interp-state.hpp"
-#endif
-
-#ifndef YRLF_INTERP_SW_HPP_
-#include "interp-sw.hpp"
 #endif
 
 #endif
