@@ -33,8 +33,8 @@ public:
     void update();
 
     InterpSWC& operator=(const InterpState& state) { restore(state); return *this; }
-    operator InterpState() const { InterpState state; save(state); return state; }
-    void save(InterpState& state) const;
+    operator InterpState() { InterpState state; save(state); return state; }
+    void save(InterpState& state);
     void restore(const InterpState& state);
 
 private:
@@ -76,12 +76,22 @@ uint32_t InterpSWC<N, G>::peekraw(size_t i) {
 }
 
 template <size_t N, InterpGeneration G>
+void InterpSWC<N, G>::add(size_t i, uint32_t v) {
+    interp_sw_add_accumulator(&interp, i, v);
+}
+
+template <size_t N, InterpGeneration G>
+void InterpSWC<N, G>::base01(uint32_t v) {
+    interp_sw_set_base_both(&interp, v);
+}
+
+template <size_t N, InterpGeneration G>
 void InterpSWC<N, G>::update() {
     interp_sw_update(&interp);
 }
 
 template <size_t N, InterpGeneration G>
-void InterpSWC<N, G>::save(InterpState& state) const {
+void InterpSWC<N, G>::save(InterpState& state) {
     state.ctrl[0] = ctrl[0];
     state.ctrl[1] = ctrl[1];
     state.accum[0] = accum[0];
