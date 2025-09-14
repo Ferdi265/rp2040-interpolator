@@ -115,15 +115,6 @@ The `CMakeLists.txt` in the `cpp` directory defines a header-only library
   - `uint32_t peekraw[2]`
   - `InterpState() = default`
   - `InterpState(const InterpState&) = default`
-  - `InterpState(const InterpSW<N, G>&)`: save state from a simulated Interpolator instance
-  - `InterpState(const InterpHW<N>&)`: save state from a hardware Interpolator instance
-  - `InterpState& operator=(const InterpState&) = default`
-  - `InterpState& operator=(const InterpSW<N, G>&)`: save state from a simulated Interpolator instance
-  - `InterpState& operator=(const InterpHW<N>&)`: save state from a hardware Interpolator instance
-  - `void save(const InterpSW<N, G>&)`:  save state from a simulated Interpolator instance
-  - `void save(const InterpHW<N>&)`:  save state from a hardware Interpolator instance
-  - `void restore(const InterpSW<N, G>&) const`:  restore state to a simulated Interpolator instance
-  - `void restore(const InterpHW<N>&) const`:  restore state to a hardware Interpolator instance
 
 - `struct InterpSW<size_t N, InterpGeneration G = InterpGeneration::DEFAULT>`: Software Simulation of an Interpolator
   - N must be 0 or 1 and describes which interpolator instance is used
@@ -137,12 +128,23 @@ The `CMakeLists.txt` in the `cpp` directory defines a header-only library
   - `void add(size_t i, uint32_t v)`: simulate write to `ACCUM0_ADD` (i=0) or `ACCUM1_ADD` (i=1) registers
   - `void base01(uint32_t v)`: simulate write to `BASE_1AND0` registers
   - `void update()`: update result (automatically called internally)
+  - `void save(InterpState&) const`: save the current interpolator state
+  - `void restore(const InterpState&)`: restore interpolator state from a saved state
+  - `operator InterpState() const`: save the current interpolator state
+  - `InterpSW& operator=(const InterpState& state)`: restore interpolator state from a saved state
+
+- `struct InterpSWC<size_t N, InterpGeneration G = InterpGeneration::DEFAULT>`: C Library Wrapper with same API as `InterpSW<N, G>`
+  - only available when `RP2040_INTERP_WITH_C` is set
+  - note that `save()` is not const due to C API constraints
 
 - `struct InterpHW<size_t N>`: Hardware Wrapper with same API as `InterpSW<N>`
   - only available when `RP2040_INTERP_WITH_HARDWARE` is set
+  - note that `save()` is not const due to hardware register constraints
 
 - `InterpSW0`: alias for `InterpSW<0>`
 - `InterpSW1`: alias for `InterpSW<1>`
+- `InterpSWC0`: alias for `InterpSWC<0>`
+- `InterpSWC1`: alias for `InterpSWC<1>`
 - `InterpHW0`: alias for `InterpHW<0>`
 - `InterpHW1`: alias for `InterpHW<1>`
 - `Interp<N>`: alias for `InterpSW<N>`, or `InterpHW<N>` when `RP2040_INTERP_WITH_HARDWARE` is set
@@ -156,7 +158,48 @@ The `CMakeLists.txt` in the `c` directory defines a static library
 
 ### `<interp.h>`
 
-TODO: document
+- generation defines: identifies the Interpolator variant
+  - `INTERP_SW_GENERATION_RP2040`
+  - `INTERP_SW_GENERATION_RP2350`
+  - `INTERP_SW_GENERATION_DEFAULT`
+
+- `interp_sw_config_t`: interpolator lane settings bitfield
+  - `uint32_t shift : 5`
+  - `uint32_t mask_lsb : 5`
+  - `uint32_t mask_msb : 5`
+  - `bool is_signed : 1`
+  - `bool cross_input : 1`
+  - `bool cross_result : 1`
+  - `bool add_raw : 1`
+  - `uint32_t force_msb : 2`
+  - `bool blend : 1`
+  - `bool clamp : 1`
+  - `bool overf0 : 1`
+  - `bool overf1 : 1`
+  - `bool overf : 1`
+  - `void interp_sw_config_from_reg(interp_sw_config_t*, uint32_t)`: convert from packed form
+  - `uint32_t interp_sw_config_to_reg(interp_sw_config_t*)`: convert to packed form
+  - ... `interp_sw_config_set_...()`: helper methods to set individual fields of a config (like in pico-sdk)
+
+- `interp_sw_save_t`: snapshot of interpolator state
+  - `uint32_t accum[2]`
+  - `uint32_t base[3]`
+  - `uint32_t ctrl[2]`
+  - `uint32_t peek[3]`
+  - `uint32_t peekraw[2]`
+  - `void interp_sw_save(interp_sw_t*, interp_sw_save_t*)`: save state
+  - `void interp_sw_restore(interp_sw_t*, interp_sw_save_t*)`: restore state
+
+- interpolator access functions
+  - `interp_sw_set_...*`
+  - `interp_sw_get_...*`
+  - `interp_sw_pop_...*`
+  - `interp_sw_peek_...*`
+
+- `interp0_sw`: instance mimicking interpolator index 0
+- `interp1_sw`: instance mimicking interpolator index 1
+
+TODO: improve documentation
 
 ## Python Library
 
