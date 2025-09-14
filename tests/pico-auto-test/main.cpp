@@ -5,6 +5,10 @@
 #include <pico/time.h>
 #include <interp-test.hpp>
 
+#ifndef INTERP_TYPE
+#define INTERP_TYPE InterpSW
+#endif
+
 template <typename Char>
 struct std::formatter<InterpState, Char> {
     template <typename ParseContext>
@@ -117,7 +121,7 @@ int main() {
     sleep_ms(1000);
 
     try {
-        InterpDualTester tester;
+        InterpDualTester<INTERP_TYPE> tester;
         InterpState initial_state = random_state();
         std::println(">> write_initial_state: state={}", initial_state);
         tester.write_state(0, initial_state);

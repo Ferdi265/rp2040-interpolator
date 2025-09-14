@@ -49,6 +49,7 @@ struct InterpTester : InterpTesterBase {
 };
 
 #if RP2040_INTERP_WITH_HARDWARE
+template <template <size_t N> typename InterpSW = InterpSW>
 struct InterpDualTester : InterpTesterBase {
     InterpTester<InterpSW> sw;
     InterpTester<InterpHW> hw;
@@ -79,7 +80,6 @@ struct InterpDualTestValueFailure : InterpDualTestFailure {
     InterpDualTestValueFailure(interp_num_t n, const InterpState& state, uint32_t sw, uint32_t hw) : InterpDualTestFailure("InterpDualTest value failure"), n(n), state(state), sw_value(sw), hw_value(hw) {}
 };
 #endif
-
 using InterpSWTester = InterpTester<InterpSW>;
 #if RP2040_INTERP_WITH_HARDWARE
 using InterpHWTester = InterpTester<InterpHW>;

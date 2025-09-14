@@ -16,7 +16,14 @@ add_subdirectory(${REPO_SOURCE_DIR} rp2040-interp)
 
 # add target
 file(GLOB sources *.cpp)
-add_executable(${PROJECT_NAME}-sw ${sources})
-set_property(TARGET ${PROJECT_NAME}-sw PROPERTY CXX_STANDARD 23)
-target_compile_options(${PROJECT_NAME}-sw PUBLIC -Wall -Wextra)
-target_link_libraries(${PROJECT_NAME}-sw PUBLIC rp2040-interp-test)
+foreach(type sw swc)
+    set(target ${PROJECT_NAME}-${type})
+
+    add_executable(${target} ${sources})
+    set_property(TARGET ${target} PROPERTY CXX_STANDARD 23)
+    target_compile_options(${target} PUBLIC -Wall -Wextra)
+    target_link_libraries(${target} PUBLIC rp2040-interp-test)
+
+    string(TOUPPER ${type} type-upper)
+    target_compile_definitions(${target} PUBLIC INTERP_TYPE=Interp${type-upper})
+endforeach()

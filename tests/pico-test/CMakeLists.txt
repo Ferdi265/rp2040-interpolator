@@ -27,7 +27,7 @@ add_subdirectory(${REPO_SOURCE_DIR} rp2040-interp)
 
 # add target
 file(GLOB sources *.cpp)
-foreach(type sw hw)
+foreach(type sw swc hw)
     set(target ${PROJECT_NAME}-${type})
 
     add_executable(${target} ${sources})

@@ -3,6 +3,10 @@
 #include <string_view>
 #include <interp-test.hpp>
 
+#ifndef INTERP_TYPE
+#define INTERP_TYPE Interp
+#endif
+
 static char line_buffer[512];
 
 std::string_view getline() {
@@ -22,7 +26,7 @@ std::string_view getline() {
 }
 
 int main() {
-    InterpSWTester tester;
+    InterpTester<INTERP_TYPE> tester;
     while (true) {
         std::string_view command = getline();
         std::string_view response = tester.parse_command(command);

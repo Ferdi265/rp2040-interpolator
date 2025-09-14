@@ -1,8 +1,11 @@
 #include <interp-test.hpp>
 
 template struct InterpTester<InterpSW>;
+template struct InterpTester<InterpSWC>;
 #if RP2040_INTERP_WITH_HARDWARE
 template struct InterpTester<InterpHW>;
+template struct InterpDualTester<InterpSW>;
+template struct InterpDualTester<InterpSWC>;
 #endif
 
 template <template <size_t N> typename Interp>
@@ -87,12 +90,14 @@ void InterpTester<Interp>::read_reg(interp_num_t n, InterpReg reg, uint32_t& val
 }
 
 #if RP2040_INTERP_WITH_HARDWARE
-void InterpDualTester::write_state(interp_num_t n, const InterpState& state) {
+template <template <size_t N> typename InterpSW>
+void InterpDualTester<InterpSW>::write_state(interp_num_t n, const InterpState& state) {
     sw.write_state(n, state);
     hw.write_state(n, state);
 }
 
-void InterpDualTester::dump_state(interp_num_t n, InterpState& state) {
+template <template <size_t N> typename InterpSW>
+void InterpDualTester<InterpSW>::dump_state(interp_num_t n, InterpState& state) {
     InterpState sw_state, hw_state;
     sw.dump_state(n, sw_state);
     hw.dump_state(n, hw_state);
@@ -104,7 +109,8 @@ void InterpDualTester::dump_state(interp_num_t n, InterpState& state) {
     state = sw_state;
 }
 
-void InterpDualTester::write_reg(interp_num_t n, InterpReg r, uint32_t v) {
+template <template <size_t N> typename InterpSW>
+void InterpDualTester<InterpSW>::write_reg(interp_num_t n, InterpReg r, uint32_t v) {
     sw.write_reg(n, r, v);
     hw.write_reg(n, r, v);
 
@@ -112,7 +118,8 @@ void InterpDualTester::write_reg(interp_num_t n, InterpReg r, uint32_t v) {
     dump_state(n, state);
 }
 
-void InterpDualTester::read_reg(interp_num_t n, InterpReg r, uint32_t& v) {
+template <template <size_t N> typename InterpSW>
+void InterpDualTester<InterpSW>::read_reg(interp_num_t n, InterpReg r, uint32_t& v) {
     InterpState before_state;
     sw.dump_state(n, before_state);
 
