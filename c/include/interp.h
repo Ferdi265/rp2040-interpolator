@@ -82,7 +82,7 @@ typedef struct {
  * \param a ctrl register value
  */
 static inline void interp_sw_config_from_reg(interp_sw_config_t *c, uint32_t ctrl) {
-    _Static_assert(sizeof (interp_sw_config_t) == sizeof (uint32_t), "interp_sw_config_t has invalid layout");
+    static_assert(sizeof (interp_sw_config_t) == sizeof (uint32_t), "interp_sw_config_t has invalid layout");
     memcpy(c, &ctrl, sizeof (interp_sw_config_t));
 }
 
@@ -94,7 +94,7 @@ static inline void interp_sw_config_from_reg(interp_sw_config_t *c, uint32_t ctr
  * \return a ctrl register value
  */
 static inline uint32_t interp_sw_config_to_reg(interp_sw_config_t *c) {
-    _Static_assert(sizeof (interp_sw_config_t) == sizeof (uint32_t), "interp_sw_config_t has invalid layout");
+    static_assert(sizeof (interp_sw_config_t) == sizeof (uint32_t), "interp_sw_config_t has invalid layout");
     uint32_t ctrl = 0;
     memcpy(&ctrl, c, sizeof (interp_sw_config_t));
     return ctrl;
