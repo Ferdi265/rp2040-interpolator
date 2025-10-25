@@ -41,9 +41,6 @@ struct InterpState {
     uint32_t peek[3];
     uint32_t peekraw[2];
 
-    InterpState() = default;
-    InterpState(const InterpState&) = default;
-
     friend bool operator<=>(InterpState, InterpState) = default;
 };
 
